@@ -1,24 +1,35 @@
 cmake_minimum_required(VERSION 3.12)
-set(CMAKE_C_STANDARD 11)
-set(CMAKE_CXX_STANDARD 17)
+# We grab our boilerplate stuff up here since we might need it multiple times in the repo
+set(CMAKE_BOILERPLATE_PATH ${CMAKE_SOURCE_DIR}/.CMake-Boilerplate)
+include(${CMAKE_BOILERPLATE_PATH}/INSTALLER.cmake)
+include(${CMAKE_BOILERPLATE_PATH}/VARIABLES.cmake)
+include(${CMAKE_BOILERPLATE_PATH}/TESTING.cmake)
+include(${CMAKE_BOILERPLATE_PATH}/pico_sdk_import.cmake)
+
+# Project version number. Good metadata to have, but ONLY INCREMENT WHEN THERE IS SOMETHING BEING RELEASED!
+set(PROJECT_VERSION 1.0.0)
 
 # Initialization 
 set(PICO_SDK_ARDUINO_PATH ${CMAKE_CURRENT_SOURCE_DIR})
 
-if (NOT PICO_SDK_PATH)
-    if (DEFINED ENV{PICO_SDK_PATH})
-        set(PICO_SDK_PATH $ENV{PICO_SDK_PATH})
-        message("Using PICO_SDK_PATH from environment ('${PICO_SDK_PATH}')")
-    else()
-        message(FATAL_ERROR "PICO_SDK_PATH was not found")
-    endif()
-endif()
+set(CMAKE_TRY_COMPILE_TARGET_TYPE "STATIC_LIBRARY")
 
-# initialize the Pico SDK
-include(${PICO_SDK_PATH}/pico_sdk_init.cmake)
+project(pico-arduino
+    VERSION ${PROJECT_VERSION}
+    DESCRIPTION "pico-arduino linkable library"
+    LANGUAGES C CXX
+)
 
-project(pico-arduino)
 pico_sdk_init()
+
+# This runtime directory will be used for stuff that has a runtime execution part
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/runtime")
+
+# We declare where wwe wwant our cmake module stuff to live at build-time
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_LIST_DIR}/cmake/")
+
+# There might be packages in our install path that we should use as hints later
+set(PACKAGE_HINTS ${CMAKE_INSTALL_PREFIX})
 
 add_subdirectory(Arduino)
 
